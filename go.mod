@@ -11,5 +11,6 @@ require (
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
 	gopkg.in/go-playground/assert.v1 v1.2.1
 	gorm.io/driver/postgres v1.0.8
+	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.8
 )

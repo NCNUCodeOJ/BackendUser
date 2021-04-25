@@ -16,11 +16,8 @@ import (
 
 var srv *http.Server
 
-func init() {
-	models.Setup()
-}
-
 func start() {
+	models.Setup()
 	r := router.SetupRouter()
 	srv = &http.Server{
 		Addr:    "localhost:8080",

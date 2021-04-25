@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/NCNUCodeOJ/BackendUser/models"
@@ -100,4 +101,11 @@ func TestUserChangeInfo(t *testing.T) {
 	}{}
 	json.Unmarshal(body, &s)
 	assert.Equal(t, "vincentinttsh", s.Name)
+}
+
+func TestCleanup(t *testing.T) {
+	e := os.Remove("test.db")
+	if e != nil {
+		t.Fail()
+	}
 }
