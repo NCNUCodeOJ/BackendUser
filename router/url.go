@@ -2,7 +2,6 @@ package router
 
 import (
 	"log"
-	"math/bits"
 	"net/http"
 	"os"
 	"strconv"
@@ -17,7 +16,7 @@ import (
 
 func getUserID() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, err := strconv.ParseUint(jwt.ExtractClaims(c)["id"].(string), 10, bits.UintSize)
+		id, err := strconv.Atoi(jwt.ExtractClaims(c)["id"].(string))
 		if err != nil {
 			c.Abort()
 			c.JSON(http.StatusInternalServerError, gin.H{
