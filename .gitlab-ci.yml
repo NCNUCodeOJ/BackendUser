@@ -13,6 +13,8 @@ deployJob:
   image: docker:19.03.12
   services:
     - docker:19.03.12-dind
+  only:
+    - tags
   variables:
     IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   stage: deploy
