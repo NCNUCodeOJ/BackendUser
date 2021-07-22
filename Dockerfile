@@ -8,6 +8,6 @@ FROM alpine:3
 WORKDIR /app
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
-COPY --from=build-env /src/app /app/
+COPY --from=build-env /src/app /app
 ENTRYPOINT ./app
 HEALTHCHECK --timeout=5s CMD ./app ping
