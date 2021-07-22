@@ -49,3 +49,12 @@ func Setup() {
 func AutoMigrateAll() {
 	DB.AutoMigrate(&User{})
 }
+
+//Ping ping a database
+func Ping() error {
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Ping()
+}

@@ -86,6 +86,20 @@ func UserInfo(c *gin.Context) {
 	})
 }
 
+// Pong test server is operating
+func Pong(c *gin.Context) {
+	if models.Ping() != nil {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "server error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "pong",
+	})
+	return
+}
+
 // Login login
 func Login(c *gin.Context) (interface{}, error) {
 	var d struct {

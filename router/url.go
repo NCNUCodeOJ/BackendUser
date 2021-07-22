@@ -61,6 +61,7 @@ func SetupRouter() *gin.Engine {
 	}
 	baseURL := "api/v1"
 	r := gin.Default()
+	r.GET(baseURL+"/auth/ping", views.Pong)
 	r.POST(baseURL+"/user", views.UserRegister)
 	r.POST(baseURL+"/token", authMiddleware.LoginHandler)
 	auth := r.Group(baseURL + "/token")

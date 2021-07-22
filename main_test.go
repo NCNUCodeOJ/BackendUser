@@ -54,6 +54,17 @@ func TestLogin(t *testing.T) {
 	json.Unmarshal(body, &d)
 }
 
+func TestPing(t *testing.T) {
+	r := router.SetupRouter()
+	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
+	req, _ := http.NewRequest("GET", "/api/v1/auth/ping", nil)
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	body, _ := ioutil.ReadAll(w.Body)
+	json.Unmarshal(body, &d)
+}
+
 func TestRefresh(t *testing.T) {
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
