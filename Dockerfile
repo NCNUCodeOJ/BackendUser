@@ -1,6 +1,6 @@
 # build stage
 FROM golang:1.15 AS build-env
-ADD . /src
+COPY . /src
 RUN cd /src && go build -o app
 
 # final stage
