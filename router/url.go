@@ -32,7 +32,7 @@ func getUserID() gin.HandlerFunc {
 
 // SetupRouter index
 func SetupRouter() *gin.Engine {
-	if os.Getenv("GIN_MOD") != "release" {
+	if os.Getenv("GIN_MODE") != "release" {
 		err := godotenv.Load()
 		if err != nil {
 			log.Println("Error loading .env file")

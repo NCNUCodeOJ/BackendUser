@@ -19,7 +19,7 @@ var srv *http.Server
 func start() {
 	models.Setup()
 	r := router.SetupRouter()
-	if os.Getenv("GIN_MOD") != "release" {
+	if os.Getenv("GIN_MODE") != "release" {
 		srv = &http.Server{
 			Addr:    "localhost:8080",
 			Handler: r,
