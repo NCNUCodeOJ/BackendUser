@@ -19,11 +19,17 @@ var srv *http.Server
 func start() {
 	models.Setup()
 	r := router.SetupRouter()
-	srv = &http.Server{
-		Addr:    "localhost:8080",
-		Handler: r,
+	if os.Getenv("GIN_MOD") != "release" {
+		srv = &http.Server{
+			Addr:    "localhost:8080",
+			Handler: r,
+		}
+	} else {
+		srv = &http.Server{
+			Addr:    ":8080",
+			Handler: r,
+		}
 	}
-
 	// Initializing the server in a goroutine so that
 	// it won't block the graceful shutdown handling below
 	go func() {
@@ -47,15 +53,30 @@ func end() {
 }
 
 func main() {
-	start()
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
-	quit := make(chan os.Signal, 1)
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutting down server...")
-	end()
+	arg := ""
+	if len(os.Args) > 1 {
+		arg = os.Args[1]
+	}
+	if arg == "ping" {
+		resp, err := http.Get("http://localhost:8080/ping")
+		if err != nil {
+			os.Exit(1)
+		}
+		if resp.StatusCode != http.StatusOK {
+			os.Exit(1)
+		}
+		os.Exit(0)
+	} else {
+		start()
+		// Wait for interrupt signal to gracefully shutdown the server with
+		// a timeout of 5 seconds.
+		quit := make(chan os.Signal, 1)
+		// kill (no param) default send syscall.SIGTERM
+		// kill -2 is syscall.SIGINT
+		// kill -9 is syscall.SIGKILL but can't be catch, so don't need add it
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		log.Println("Shutting down server...")
+		end()
+	}
 }

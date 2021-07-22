@@ -57,7 +57,7 @@ func TestLogin(t *testing.T) {
 func TestPing(t *testing.T) {
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
-	req, _ := http.NewRequest("GET", "/api/v1/auth/ping", nil)
+	req, _ := http.NewRequest("GET", "/ping", nil)
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
