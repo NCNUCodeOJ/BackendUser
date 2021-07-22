@@ -32,9 +32,11 @@ func getUserID() gin.HandlerFunc {
 
 // SetupRouter index
 func SetupRouter() *gin.Engine {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Error loading .env file")
+	if os.Getenv("GIN_MOD") != "release" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("Error loading .env file")
+		}
 	}
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:            "NCNUOJ",
@@ -60,8 +62,8 @@ func SetupRouter() *gin.Engine {
 	baseURL := "api/v1"
 	r := gin.Default()
 	r.POST(baseURL+"/user", views.UserRegister)
-	r.POST(baseURL+"/auth", authMiddleware.LoginHandler)
-	auth := r.Group(baseURL + "/auth")
+	r.POST(baseURL+"/token", authMiddleware.LoginHandler)
+	auth := r.Group(baseURL + "/token")
 	auth.Use(authMiddleware.MiddlewareFunc())
 	auth.GET("", authMiddleware.RefreshHandler)
 	user := r.Group(baseURL + "/user")
@@ -69,7 +71,7 @@ func SetupRouter() *gin.Engine {
 	user.Use(getUserID())
 	{
 		user.GET("", views.UserInfo)
-		user.PUT("", views.UserChangeInfo)
+		user.PATCH("", views.UserChangeInfo)
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{

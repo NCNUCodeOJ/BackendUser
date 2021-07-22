@@ -18,7 +18,13 @@ var DB *gorm.DB
 
 //Setup 資料庫連接設定
 func Setup() {
-	err := godotenv.Load()
+	var err error
+	if os.Getenv("GIN_MOD") != "release" {
+		err = godotenv.Load()
+		if err != nil {
+			log.Println("Error loading .env file")
+		}
+	}
 	if gin.Mode() == "test" {
 		DB, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	} else {
@@ -30,7 +36,7 @@ func Setup() {
 		caRoot := os.Getenv("CAROOT")
 		cluster := os.Getenv("CLUSTER")
 		var addr = fmt.Sprintf("postgres://%s:%s@%s:%s/%s", username, password, host, port, dbName)
-		addr += fmt.Sprintf("?sslmode=verify-full&sslrootcert=%s/cc-ca.crt&options=--cluster=%s", caRoot, cluster)
+		addr += fmt.Sprintf("?sslmode=verify-full&sslrootcert=%s&options=--cluster=%s", caRoot, cluster)
 		DB, err = gorm.Open(postgres.Open(addr), &gorm.Config{})
 	}
 	if err != nil {

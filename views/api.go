@@ -100,7 +100,7 @@ func Login(c *gin.Context) (interface{}, error) {
 	}
 	u, err := models.UserDetailByUserName(*d.Name)
 	if err != nil {
-		return nil, errors.New("未填寫完成")
+		return nil, errors.New("帳號或密碼錯誤")
 	}
 	if pkg.Compare(u.Password, *d.Password) == nil {
 		return &u, nil
