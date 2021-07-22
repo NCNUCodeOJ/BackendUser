@@ -8,3 +8,4 @@ FROM alpine:3
 WORKDIR /app
 COPY --from=build-env /src/app /app/
 ENTRYPOINT ./app
+HEALTHCHECK --timeout=5s CMD ./app ping
