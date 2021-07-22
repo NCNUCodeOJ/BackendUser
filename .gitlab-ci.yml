@@ -11,8 +11,6 @@ test:
 
 deployJob:
   image: docker:19.03.12
-  services:
-    - docker:19.03.12-dind
   only:
     - tags
   variables:
