@@ -6,8 +6,7 @@ RUN cd /src && go build -o app
 # final stage
 FROM alpine:3
 WORKDIR /app
-RUN groupadd -g 999 appuser && \
-    useradd -r -u 999 -g appuser appuser
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 COPY --from=build-env /src/app /app/
 ENTRYPOINT ./app
