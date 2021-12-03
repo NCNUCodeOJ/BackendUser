@@ -37,7 +37,8 @@ func TestUserRegister(t *testing.T) {
 		"password": "1234",
 		"realname": "郭子緯",
 		"email": "s107213004@main",
-		"student_id": "s107213004"
+		"student_id": "s107213004",
+		"avatar": "https://avatars0.githubusercontent.com/u/1234?v=4"
 	}`)
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件

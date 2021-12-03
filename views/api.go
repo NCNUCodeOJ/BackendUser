@@ -3,6 +3,7 @@ package views
 import (
 	"errors"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/NCNUCodeOJ/BackendUser/models"
@@ -12,6 +13,20 @@ import (
 	"github.com/vincentinttsh/zero"
 	"gorm.io/gorm"
 )
+
+func isValidURL(toTest string) bool {
+	_, err := url.ParseRequestURI(toTest)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(toTest)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	return true
+}
 
 // UserRegister 註冊
 func UserRegister(c *gin.Context) {
@@ -23,6 +38,7 @@ func UserRegister(c *gin.Context) {
 		RealName  string `json:"realname"`
 		StudentID string `json:"student_id"`
 		UserName  string `json:"username"`
+		Avatar    string `json:"avatar"`
 	}
 
 	if err := c.BindJSON(&data); err != nil {
@@ -34,6 +50,12 @@ func UserRegister(c *gin.Context) {
 	if zero.IsZero(data) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "data is not complete",
+		})
+		return
+	}
+	if !isValidURL(data.Avatar) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
 		})
 		return
 	}
@@ -66,6 +88,7 @@ func UserRegister(c *gin.Context) {
 	user.StudentID = data.StudentID
 	user.Email = data.Email
 	user.Password = pwd
+	user.Avatar = data.Avatar
 
 	if err := models.CreateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -98,6 +121,7 @@ func UserInfo(c *gin.Context) {
 		"student_id": user.StudentID,
 		"admin":      user.Admin,
 		"teacher":    user.Teacher,
+		"avatar":     user.Avatar,
 	})
 }
 
@@ -155,6 +179,7 @@ func UserChangeInfo(c *gin.Context) {
 		Email     *string `json:"email"`
 		Password  *string `json:"password"`
 		StudentID *string `json:"student_id"`
+		Avatar    *string `json:"avatar"`
 	}
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
