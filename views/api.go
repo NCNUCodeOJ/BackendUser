@@ -16,6 +16,7 @@ import (
 // UserRegister 註冊
 func UserRegister(c *gin.Context) {
 	var user models.User
+	var err error
 	var data struct {
 		Email     string `json:"email"`
 		Password  string `json:"password"`
@@ -23,6 +24,7 @@ func UserRegister(c *gin.Context) {
 		StudentID string `json:"student_id"`
 		UserName  string `json:"username"`
 	}
+
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "json format error",
@@ -36,14 +38,15 @@ func UserRegister(c *gin.Context) {
 		return
 	}
 
-	if _, err := models.UserDetailByUserName(data.UserName); err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "server error",
-			})
-			return
-		}
+	_, err = models.UserDetailByUserName(data.UserName)
 
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "server error",
+		})
+		return
+	}
+	if err == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "username is already used",
 		})
