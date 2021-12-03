@@ -20,6 +20,11 @@ var d struct {
 	Token string `json:"token"`
 }
 var userID string
+var userPath = "/api/v1/user"
+
+func contentType() (string, string) {
+	return "Content-Type", "application/json"
+}
 
 func init() {
 	gin.SetMode(gin.TestMode)
@@ -36,8 +41,8 @@ func TestUserRegister(t *testing.T) {
 	}`)
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
-	req, _ := http.NewRequest("POST", "/api/v1/user", bytes.NewBuffer(data))
-	req.Header.Set("Content-Type", "application/json")
+	req, _ := http.NewRequest("POST", userPath, bytes.NewBuffer(data))
+	req.Header.Set(contentType())
 	r.ServeHTTP(w, req)
 
 	s := struct {
@@ -68,7 +73,7 @@ func TestLogin(t *testing.T) {
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
 	req, _ := http.NewRequest("POST", "/api/v1/token", bytes.NewBuffer(data))
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(contentType())
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	body, _ := ioutil.ReadAll(w.Body)
@@ -79,7 +84,7 @@ func TestPing(t *testing.T) {
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
 	req, _ := http.NewRequest("GET", "/ping", nil)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(contentType())
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
 	body, _ := ioutil.ReadAll(w.Body)
@@ -101,7 +106,7 @@ func TestRefresh(t *testing.T) {
 func TestUserInfo(t *testing.T) {
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
-	req, _ := http.NewRequest("GET", "/api/v1/user", bytes.NewBuffer(make([]byte, 1000)))
+	req, _ := http.NewRequest("GET", userPath, bytes.NewBuffer(make([]byte, 1000)))
 	req.Header.Set("Authorization", "Bearer "+d.Token)
 	r.ServeHTTP(w, req)
 	body, _ := ioutil.ReadAll(w.Body)
@@ -118,12 +123,12 @@ func TestUserChangeInfo(t *testing.T) {
 	}`)
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
-	req, _ := http.NewRequest("PATCH", "/api/v1/user", bytes.NewBuffer(data))
+	req, _ := http.NewRequest("PATCH", userPath, bytes.NewBuffer(data))
 	req.Header.Set("Authorization", "Bearer "+d.Token)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(contentType())
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-	req, _ = http.NewRequest("GET", "/api/v1/user", bytes.NewBuffer(make([]byte, 1000)))
+	req, _ = http.NewRequest("GET", userPath, bytes.NewBuffer(make([]byte, 1000)))
 	req.Header.Set("Authorization", "Bearer "+d.Token)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -145,10 +150,10 @@ func TestChangeUserPermissions(t *testing.T) {
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
 	req, _ := http.NewRequest("PATCH", "/api/v1/user/permission", bytes.NewBuffer(data))
 	req.Header.Set("Authorization", "Bearer "+d.Token)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(contentType())
 	r.ServeHTTP(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-	req, _ = http.NewRequest("GET", "/api/v1/user", bytes.NewBuffer(make([]byte, 1000)))
+	req, _ = http.NewRequest("GET", userPath, bytes.NewBuffer(make([]byte, 1000)))
 	req.Header.Set("Authorization", "Bearer "+d.Token)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
