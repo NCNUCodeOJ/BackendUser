@@ -10,6 +10,7 @@ import (
 	"github.com/NCNUCodeOJ/BackendUser/models"
 	"github.com/NCNUCodeOJ/BackendUser/views"
 	jwt "github.com/appleboy/gin-jwt/v2"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -65,6 +66,16 @@ func SetupRouter() *gin.Engine {
 	}
 	baseURL := "api/v1"
 	r := gin.Default()
+	// CORS
+	if os.Getenv("FrontendURL") != "" {
+		r.Use(cors.New(cors.Config{
+			AllowOrigins:     []string{os.Getenv("FrontendURL")},
+			AllowMethods:     []string{"PUT", "PATCH", "POST", "GET", "DELETE"},
+			AllowHeaders:     []string{"Origin, Authorization, Content-Type, Accept"},
+			AllowCredentials: true,
+			MaxAge:           12 * time.Hour,
+		}))
+	}
 	r.GET("/ping", views.Pong)
 	r.POST(baseURL+"/user", views.UserRegister)
 	r.POST(baseURL+"/token", authMiddleware.LoginHandler)
