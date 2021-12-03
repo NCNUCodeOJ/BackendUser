@@ -3,11 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/NCNUCodeOJ/BackendUser/models"
@@ -19,6 +19,7 @@ import (
 var d struct {
 	Token string `json:"token"`
 }
+var userID string
 
 func init() {
 	gin.SetMode(gin.TestMode)
@@ -38,7 +39,24 @@ func TestUserRegister(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/v1/user", bytes.NewBuffer(data))
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
-	fmt.Println(w.Body.String())
+
+	s := struct {
+		UserID string `json:"user_id"`
+	}{}
+
+	body, _ := ioutil.ReadAll(w.Body)
+	json.Unmarshal(body, &s)
+	userID = s.UserID
+
+	id, err := strconv.Atoi(userID)
+	assert.Equal(t, err, nil)
+
+	user, err := models.UserDetailByID(uint(id))
+	assert.Equal(t, err, nil)
+
+	user.Admin = true
+	err = models.UpdateUser(&user)
+
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
@@ -96,7 +114,7 @@ func TestUserInfo(t *testing.T) {
 
 func TestUserChangeInfo(t *testing.T) {
 	var data = []byte(`{
-		"username": "vincentinttsh"
+		"student_id": "vincentinttsh"
 	}`)
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
@@ -111,10 +129,37 @@ func TestUserChangeInfo(t *testing.T) {
 	r.ServeHTTP(w, req)
 	body, _ := ioutil.ReadAll(w.Body)
 	s := struct {
-		Name string `json:"username"`
+		StudentID string `json:"student_id"`
 	}{}
 	json.Unmarshal(body, &s)
-	assert.Equal(t, "vincentinttsh", s.Name)
+	assert.Equal(t, "vincentinttsh", s.StudentID)
+}
+
+func TestChangeUserPermissions(t *testing.T) {
+
+	var data = []byte(`{
+		"user_id": ` + userID + `,
+		"teacher": true
+	}`)
+	r := router.SetupRouter()
+	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
+	req, _ := http.NewRequest("PATCH", "/api/v1/user/permission", bytes.NewBuffer(data))
+	req.Header.Set("Authorization", "Bearer "+d.Token)
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusOK, w.Code)
+	req, _ = http.NewRequest("GET", "/api/v1/user", bytes.NewBuffer(make([]byte, 1000)))
+	req.Header.Set("Authorization", "Bearer "+d.Token)
+	w = httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	body, _ := ioutil.ReadAll(w.Body)
+	s := struct {
+		Teacher bool `json:"teacher"`
+		Admin   bool `json:"admin"`
+	}{}
+	json.Unmarshal(body, &s)
+	assert.Equal(t, true, s.Teacher)
+	assert.Equal(t, true, s.Admin)
 }
 
 func TestCleanup(t *testing.T) {

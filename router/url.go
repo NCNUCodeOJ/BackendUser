@@ -25,6 +25,8 @@ func getUserID() gin.HandlerFunc {
 			})
 		} else {
 			c.Set("userID", uint(id))
+			c.Set("teacher", jwt.ExtractClaims(c)["teacher"].(bool))
+			c.Set("admin", jwt.ExtractClaims(c)["admin"].(bool))
 			c.Next()
 		}
 	}
@@ -52,6 +54,7 @@ func SetupRouter() *gin.Engine {
 					"id":       strconv.FormatUint(uint64(v.ID), 10),
 					"username": v.UserName,
 					"admin":    v.Admin,
+					"teacher":  v.Teacher,
 				}
 			}
 			return jwt.MapClaims{}
@@ -74,6 +77,7 @@ func SetupRouter() *gin.Engine {
 	{
 		user.GET("", views.UserInfo)
 		user.PATCH("", views.UserChangeInfo)
+		user.PATCH("/permission", views.ChangeUserPermissions)
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{

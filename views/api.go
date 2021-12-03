@@ -3,6 +3,7 @@ package views
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/NCNUCodeOJ/BackendUser/models"
 	"github.com/NCNUCodeOJ/BackendUser/pkg"
@@ -67,6 +68,7 @@ func UserRegister(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "註冊成功",
+		"user_id": strconv.FormatUint(uint64(user.ID), 10),
 	})
 }
 
@@ -81,10 +83,13 @@ func UserInfo(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"username": user.UserName,
-		"realname": user.RealName,
-		"email":    user.Email,
-		"admin":    user.Admin,
+		"user_id":    strconv.FormatUint(uint64(user.ID), 10),
+		"username":   user.UserName,
+		"realname":   user.RealName,
+		"email":      user.Email,
+		"student_id": user.StudentID,
+		"admin":      user.Admin,
+		"teacher":    user.Teacher,
 	})
 }
 
@@ -135,7 +140,6 @@ func UserChangeInfo(c *gin.Context) {
 	}
 	var data struct {
 		RealName  *string `json:"realname"`
-		UserName  *string `json:"username"`
 		Email     *string `json:"email"`
 		Password  *string `json:"password"`
 		StudentID *string `json:"student_id"`
@@ -167,5 +171,63 @@ func UserChangeInfo(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "更改成功",
+	})
+}
+
+// ChangeUserPermissions 使用者更改權限
+func ChangeUserPermissions(c *gin.Context) {
+	admin := c.MustGet("admin").(bool)
+	if !admin {
+		c.JSON(http.StatusForbidden, gin.H{
+			"message": "Permission denied",
+		})
+		return
+	}
+
+	var data struct {
+		UserID  *uint `json:"user_id"`
+		Admin   *bool `json:"admin"`
+		Teacher *bool `json:"teacher"`
+	}
+
+	if err := c.BindJSON(&data); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "JSON format error",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	if data.UserID == nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "No specified user",
+		})
+		return
+	}
+
+	user, err := models.UserDetailByID(*data.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Server error",
+		})
+		return
+	}
+
+	if data.Admin != nil {
+		user.Admin = *data.Admin
+	}
+	if data.Teacher != nil {
+		user.Teacher = *data.Teacher
+	}
+
+	if err := models.UpdateUser(&user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Server error",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Success",
 	})
 }

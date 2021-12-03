@@ -5,12 +5,13 @@ import "gorm.io/gorm"
 //User Database - database
 type User struct {
 	gorm.Model
-	StudentID string `gorm:"type:varchar(15) NOT NULL;"`
-	Email     string `gorm:"type:varchar(40) NOT NULL;"`
-	UserName  string `gorm:"type:varchar(20) NOT NULL;"`
-	Password  string `gorm:"type:varchar(100) NOT NULL;"`
-	RealName  string `gorm:"type:varchar(30)"`
-	Admin     bool   `gorm:"default:false"`
+	StudentID string `gorm:"type:varchar(15); NOT NULL;"`
+	Email     string `gorm:"type:varchar(40); NOT NULL;"`
+	UserName  string `gorm:"type:varchar(20); NOT NULL;"`
+	Password  string `gorm:"type:varchar(100); NOT NULL;"`
+	RealName  string `gorm:"type:varchar(30); NOT NULL;"`
+	Admin     bool   `gorm:"default:false; NOT NULL;"`
+	Teacher   bool   `gorm:"default:false; NOT NULL;"`
 }
 
 // CreateUser 新增 user
