@@ -5,7 +5,6 @@ import "gorm.io/gorm"
 //User Database - database
 type User struct {
 	gorm.Model
-	SchoolID  int    `gorm:"NOT NULL;"`
 	StudentID string `gorm:"type:varchar(15) NOT NULL;"`
 	Email     string `gorm:"type:varchar(40) NOT NULL;"`
 	UserName  string `gorm:"type:varchar(20) NOT NULL;"`

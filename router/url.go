@@ -42,6 +42,7 @@ func SetupRouter() *gin.Engine {
 		Realm:            "NCNUOJ",
 		SigningAlgorithm: "HS512",
 		Key:              []byte(os.Getenv("SECRET_KEY")),
+		Timeout:          4 * time.Hour,
 		MaxRefresh:       time.Hour,
 		Authenticator:    views.Login,
 		TimeFunc:         time.Now,

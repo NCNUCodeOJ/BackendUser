@@ -16,10 +16,11 @@ import (
 func UserRegister(c *gin.Context) {
 	var user models.User
 	var data struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		RealName string `json:"realname"`
-		UserName string `json:"username"`
+		Email     string `json:"email"`
+		Password  string `json:"password"`
+		RealName  string `json:"realname"`
+		StudentID string `json:"student_id"`
+		UserName  string `json:"username"`
 	}
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -55,6 +56,7 @@ func UserRegister(c *gin.Context) {
 	}
 	user.RealName = data.RealName
 	user.UserName = data.UserName
+	user.StudentID = data.StudentID
 	user.Email = data.Email
 	user.Password = pwd
 	if err := models.CreateUser(&user); err != nil {
@@ -132,10 +134,11 @@ func UserChangeInfo(c *gin.Context) {
 		return
 	}
 	var data struct {
-		RealName *string `json:"realname"`
-		UserName *string `json:"username"`
-		Email    *string `json:"email"`
-		Password *string `json:"password"`
+		RealName  *string `json:"realname"`
+		UserName  *string `json:"username"`
+		Email     *string `json:"email"`
+		Password  *string `json:"password"`
+		StudentID *string `json:"student_id"`
 	}
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -143,6 +146,9 @@ func UserChangeInfo(c *gin.Context) {
 		})
 		return
 	}
+
+	replace.Replace(&user, &data)
+
 	if !zero.IsZero(data.Password) {
 		pwd, err := pkg.Encrypt(*data.Password)
 		if err != nil {
@@ -153,7 +159,7 @@ func UserChangeInfo(c *gin.Context) {
 		}
 		data.Password = &pwd
 	}
-	replace.Replace(&user, &data)
+
 	if err := models.UpdateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "更改失敗",

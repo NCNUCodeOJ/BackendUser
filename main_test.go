@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -29,13 +30,15 @@ func TestUserRegister(t *testing.T) {
 		"username": "vincent",
 		"password": "1234",
 		"realname": "郭子緯",
-		"email": "s107213004@main"
+		"email": "s107213004@main",
+		"student_id": "s107213004"
 	}`)
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
 	req, _ := http.NewRequest("POST", "/api/v1/user", bytes.NewBuffer(data))
 	req.Header.Set("Content-Type", "application/json")
 	r.ServeHTTP(w, req)
+	fmt.Println(w.Body.String())
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
