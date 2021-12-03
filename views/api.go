@@ -25,49 +25,54 @@ func UserRegister(c *gin.Context) {
 	}
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "未按照格式填寫或未使用json",
+			"message": "json format error",
 		})
 		return
 	}
 	if zero.IsZero(data) {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "未填寫完成",
+			"message": "data is not complete",
 		})
 		return
 	}
-	u, err := models.UserDetailByUserName(data.UserName)
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "系統錯誤",
-		})
-		return
-	}
-	if u.ID != 0 {
+
+	if _, err := models.UserDetailByUserName(data.UserName); err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "server error",
+			})
+			return
+		}
+
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "此 username 已被使用",
+			"message": "username is already used",
 		})
 		return
 	}
+
 	pwd, err := pkg.Encrypt(data.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "系統錯誤",
+			"message": "system error",
 		})
 		return
 	}
+
 	user.RealName = data.RealName
 	user.UserName = data.UserName
 	user.StudentID = data.StudentID
 	user.Email = data.Email
 	user.Password = pwd
+
 	if err := models.CreateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "註冊失敗",
+			"message": "register failed",
 		})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "註冊成功",
+		"message": "register success",
 		"user_id": strconv.FormatUint(uint64(user.ID), 10),
 	})
 }
@@ -78,7 +83,7 @@ func UserInfo(c *gin.Context) {
 	user, err := models.UserDetailByID(uint(userID))
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "無此使用者",
+			"message": "no such user",
 		})
 		return
 	}
@@ -112,20 +117,24 @@ func Login(c *gin.Context) (interface{}, error) {
 		Name     *string `json:"username"`
 		Password *string `json:"password"`
 	}
+
 	if err := c.BindJSON(&d); err != nil {
-		return nil, errors.New("未按照格式填寫或未使用json")
+		return nil, errors.New("json format error")
 	}
 	if zero.IsZero(d) {
-		return nil, errors.New("未填寫完成")
+		return nil, errors.New("data is not complete")
 	}
+
 	u, err := models.UserDetailByUserName(*d.Name)
 	if err != nil {
-		return nil, errors.New("帳號或密碼錯誤")
+		return nil, errors.New("username or password is wrong")
 	}
+
 	if pkg.Compare(u.Password, *d.Password) == nil {
 		return &u, nil
 	}
-	return nil, errors.New("帳號或密碼錯誤")
+
+	return nil, errors.New("username or password is wrong")
 }
 
 // UserChangeInfo 使用者更改自己的資訊
@@ -134,7 +143,7 @@ func UserChangeInfo(c *gin.Context) {
 	user, err := models.UserDetailByID(uint(userID))
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
-			"message": "無此使用者",
+			"message": "no such user",
 		})
 		return
 	}
@@ -146,7 +155,7 @@ func UserChangeInfo(c *gin.Context) {
 	}
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "未按照格式填寫",
+			"message": "json format error",
 		})
 		return
 	}
@@ -157,7 +166,7 @@ func UserChangeInfo(c *gin.Context) {
 		pwd, err := pkg.Encrypt(*data.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"message": "系統錯誤",
+				"message": "system error",
 			})
 			return
 		}
@@ -166,11 +175,11 @@ func UserChangeInfo(c *gin.Context) {
 
 	if err := models.UpdateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "更改失敗",
+			"message": "update failed",
 		})
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "更改成功",
+		"message": "update success",
 	})
 }
 
@@ -193,7 +202,6 @@ func ChangeUserPermissions(c *gin.Context) {
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "JSON format error",
-			"error":   err.Error(),
 		})
 		return
 	}
