@@ -47,13 +47,20 @@ func UserRegister(c *gin.Context) {
 		})
 		return
 	}
+
+	userAvatar := data.Avatar
+	data.Avatar = "default"
+
 	if zero.IsZero(data) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "data is not complete",
 		})
 		return
 	}
-	if !isValidURL(data.Avatar) {
+
+	data.Avatar = userAvatar
+
+	if data.Avatar != "" && !isValidURL(data.Avatar) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
