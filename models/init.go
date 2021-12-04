@@ -48,6 +48,7 @@ func Setup() {
 //AutoMigrateAll 自動產生 table
 func AutoMigrateAll() {
 	DB.AutoMigrate(&User{})
+	DB.AutoMigrate(&Announcement{})
 }
 
 //Ping ping a database

@@ -7,6 +7,7 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.4
 	github.com/joho/godotenv v1.4.0
+	github.com/meyskens/go-hcaptcha v0.0.0-20200428113538-5c28ead635cd
 	github.com/vincentinttsh/replace v1.0.2
 	github.com/vincentinttsh/zero v1.0.2
 	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871

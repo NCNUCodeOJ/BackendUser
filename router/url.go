@@ -15,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getUserID() gin.HandlerFunc {
+func getUserInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id, err := strconv.Atoi(jwt.ExtractClaims(c)["id"].(string))
 		if err != nil {
@@ -79,16 +79,31 @@ func SetupRouter() *gin.Engine {
 	r.GET("/ping", views.Pong)
 	r.POST(baseURL+"/user", views.UserRegister)
 	r.POST(baseURL+"/token", authMiddleware.LoginHandler)
+	r.POST(baseURL+"/forget_password", views.UserForgetPassword)
+	r.POST(baseURL+"/reset_password", views.UserResetPassword)
 	auth := r.Group(baseURL + "/token")
 	auth.Use(authMiddleware.MiddlewareFunc())
 	auth.GET("", authMiddleware.RefreshHandler)
 	user := r.Group(baseURL + "/user")
 	user.Use(authMiddleware.MiddlewareFunc())
-	user.Use(getUserID())
+	user.Use(getUserInfo())
 	{
 		user.GET("", views.UserInfo)
 		user.PATCH("", views.UserChangeInfo)
 		user.PATCH("/permission", views.ChangeUserPermissions)
+	}
+	username := r.Group(baseURL + "/username")
+	username.Use(authMiddleware.MiddlewareFunc())
+	{
+		username.POST("", views.GetUserName)
+	}
+	announcement := r.Group(baseURL + "/announcements")
+	announcement.Use(authMiddleware.MiddlewareFunc())
+	announcement.Use(getUserInfo())
+	{
+		announcement.GET("", views.GetAllAnnouncements)
+		announcement.POST("", views.CreateAnnouncement)
+		announcement.DELETE("/:id", views.DeleteAnnouncement)
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{

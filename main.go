@@ -12,12 +12,15 @@ import (
 
 	"github.com/NCNUCodeOJ/BackendUser/models"
 	"github.com/NCNUCodeOJ/BackendUser/router"
+	"github.com/NCNUCodeOJ/BackendUser/views"
 )
 
 var srv *http.Server
 
 func start() {
 	models.Setup()
+	views.Setup()
+
 	r := router.SetupRouter()
 	if os.Getenv("GIN_MODE") != "release" {
 		srv = &http.Server{
