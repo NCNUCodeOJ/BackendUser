@@ -66,6 +66,7 @@ func SetupRouter() *gin.Engine {
 		log.Fatal("JWT Error:" + err.Error())
 	}
 	baseURL := "api/v1"
+	privateBaseURL := "api/private/v1"
 	r := gin.Default()
 	// CORS
 	if os.Getenv("FrontendURL") != "" {
@@ -99,6 +100,10 @@ func SetupRouter() *gin.Engine {
 	username.Use(authMiddleware.MiddlewareFunc())
 	{
 		username.POST("", views.GetUserName)
+	}
+	usernamePrivate := r.Group(privateBaseURL + "/username")
+	{
+		usernamePrivate.POST("", views.GetUserName)
 	}
 	getannouncement := r.Group(baseURL + "/announcements")
 	getannouncement.GET("", views.GetAllAnnouncements)
