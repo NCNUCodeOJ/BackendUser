@@ -97,11 +97,12 @@ func SetupRouter() *gin.Engine {
 	{
 		username.POST("", views.GetUserName)
 	}
+	getannouncement := r.Group(baseURL + "/announcements")
+	getannouncement.GET("", views.GetAllAnnouncements)
 	announcement := r.Group(baseURL + "/announcements")
 	announcement.Use(authMiddleware.MiddlewareFunc())
 	announcement.Use(getUserInfo())
 	{
-		announcement.GET("", views.GetAllAnnouncements)
 		announcement.POST("", views.CreateAnnouncement)
 		announcement.DELETE("/:id", views.DeleteAnnouncement)
 	}

@@ -256,7 +256,6 @@ func TestGetAllAnnouncement(t *testing.T) {
 	r := router.SetupRouter()
 	w := httptest.NewRecorder() // 取得 ResponseRecorder 物件
 	req, _ := http.NewRequest("GET", "/api/v1/announcements", nil)
-	req.Header.Set("Authorization", "Bearer "+d.Token)
 	req.Header.Set(contentType())
 	r.ServeHTTP(w, req)
 	body, _ := ioutil.ReadAll(w.Body)
