@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -67,6 +68,14 @@ func UserRegister(c *gin.Context) {
 	if data.Avatar != "" && !isValidURL(data.Avatar) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
+		})
+		return
+	}
+
+	isValidUserName := regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString
+	if !isValidUserName(data.UserName) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "username can only contain letters and numbers",
 		})
 		return
 	}
