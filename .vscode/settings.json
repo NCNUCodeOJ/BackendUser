@@ -3,6 +3,7 @@
         "godotenv",
         "gonic",
         "gorm",
-        "hcaptcha"
+        "hcaptcha",
+        "joho"
     ]
 }
