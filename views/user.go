@@ -222,16 +222,19 @@ func UserChangeInfo(c *gin.Context) {
 	if needLog {
 		log.Println(
 			"data: realname:",
-			*data.RealName,
+			data.RealName,
 			"email:",
-			*data.Email,
+			data.Email,
 			"password:",
-			*data.Password,
+			data.Password,
 			"student_id:",
-			*data.StudentID,
+			data.StudentID,
 			"avatar:",
-			*data.Avatar,
+			data.Avatar,
 		)
+	}
+	if needLog {
+		log.Printf("%+v\n", user)
 	}
 
 	if data.Password != nil && len(*data.Password) < 6 {
