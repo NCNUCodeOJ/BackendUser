@@ -234,7 +234,7 @@ func UserChangeInfo(c *gin.Context) {
 		)
 	}
 
-	if len(*data.Password) < 6 {
+	if data.Password != nil && len(*data.Password) < 6 {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "password is too short, at least 6 characters",
 		})

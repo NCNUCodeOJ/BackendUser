@@ -23,7 +23,7 @@ var d struct {
 var userID string
 var userName = "vincent"
 var userPath = "/api/v1/user"
-var password = "1234"
+var password = "123456"
 var announcementsLength = 0
 var announcementsID int
 
@@ -40,7 +40,7 @@ func init() {
 func TestUserRegister(t *testing.T) {
 	var data = []byte(`{
 		"username": "` + userName + `",
-		"password": "1234",
+		"password": "123456",
 		"realname": "郭子緯",
 		"email": "s107213004@ncnu.edu.tw",
 		"student_id": "s107213004",
