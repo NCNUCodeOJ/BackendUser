@@ -2,6 +2,7 @@ package views
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -91,6 +92,13 @@ func UserRegister(c *gin.Context) {
 	if err == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"message": "username is already used",
+		})
+		return
+	}
+
+	if len(data.Password) < 6 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "password is too short, at least 6 characters",
 		})
 		return
 	}
@@ -188,6 +196,9 @@ func Login(c *gin.Context) (interface{}, error) {
 func UserChangeInfo(c *gin.Context) {
 	userID := c.MustGet("userID").(uint)
 	user, err := models.UserDetailByID(uint(userID))
+
+	var pwd string
+
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"message": "no such user",
@@ -208,10 +219,30 @@ func UserChangeInfo(c *gin.Context) {
 		return
 	}
 
-	replace.Replace(&user, &data)
+	if needLog {
+		log.Println(
+			"data: realname:",
+			*data.RealName,
+			"email:",
+			*data.Email,
+			"password:",
+			*data.Password,
+			"student_id:",
+			*data.StudentID,
+			"avatar:",
+			*data.Avatar,
+		)
+	}
+
+	if len(*data.Password) < 6 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "password is too short, at least 6 characters",
+		})
+		return
+	}
 
 	if !zero.IsZero(data.Password) {
-		pwd, err := pkg.Encrypt(*data.Password)
+		pwd, err = pkg.Encrypt(*data.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "system error",
@@ -221,11 +252,18 @@ func UserChangeInfo(c *gin.Context) {
 		data.Password = &pwd
 	}
 
+	replace.Replace(&user, &data)
+
+	if needLog {
+		log.Printf("%+v\n", user)
+	}
+
 	if err := models.UpdateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "update failed",
 		})
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "update success",
 	})
@@ -408,6 +446,13 @@ func UserResetPassword(c *gin.Context) {
 		return
 	}
 
+	if len(data.Password) < 6 {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "password is too short, at least 6 characters",
+		})
+		return
+	}
+
 	pwd, err := pkg.Encrypt(data.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -415,6 +460,7 @@ func UserResetPassword(c *gin.Context) {
 		})
 		return
 	}
+
 	user.Password = pwd
 	user.VerifyToken = ""
 	user.VerifyTokenExpire = time.Time{}

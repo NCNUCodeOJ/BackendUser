@@ -7,8 +7,14 @@ import (
 	"github.com/meyskens/go-hcaptcha"
 )
 
+var needLog = false
+
 // Setup setup api
 func Setup() {
+
+	if os.Getenv("LOG") == "1" {
+		needLog = true
+	}
 
 	if gin.Mode() == "test" {
 		captchaClient = hcaptcha.New("0x0000000000000000000000000000000000000000")
