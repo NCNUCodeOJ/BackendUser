@@ -109,6 +109,7 @@ func DeleteAnnouncement(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "announcement id error",
 		})
+		return
 	} else {
 		announcementID = uint(ID)
 	}
