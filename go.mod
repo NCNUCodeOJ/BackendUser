@@ -10,7 +10,7 @@ require (
 	github.com/meyskens/go-hcaptcha v0.0.0-20200428113538-5c28ead635cd
 	github.com/vincentinttsh/replace v1.0.2
 	github.com/vincentinttsh/zero v1.0.2
-	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
+	golang.org/x/crypto v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1
 	gorm.io/driver/postgres v1.2.2
 	gorm.io/driver/sqlite v1.2.4
